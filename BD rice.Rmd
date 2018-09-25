@@ -1,7 +1,6 @@
 ---
 title: "Cleaning and exploring rice production, import and export data of Bangladesh"
 author: "Wahiduzzaman Khan"
-output: html_notebook
 ---
 In this project we are going to take a look at the production, import and export of rice of Bangladesh.</br>
 You can download these data sets from [here](https://github.com/WahiduzzamanKhan/Cleaning-Bangladesh-Rice-Production-Data/tree/master/raw%20data). These data are collected from BRRI (Bangladesh Rice Research Institute) and WRS (World Rice Statistics).
