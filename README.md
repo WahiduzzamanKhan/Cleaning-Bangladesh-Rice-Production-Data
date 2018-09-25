@@ -1,7 +1,4 @@
----
-title: "Cleaning Bangladesh Rice Production Data"
-author: "Wahiduzzaman Khan"
----
+# Cleaning Bangladesh Rice Production Data
 
 In this project I am going to clean the rice production, import and export data of Bangladesh in order to perform some analysis and visualization.
 
