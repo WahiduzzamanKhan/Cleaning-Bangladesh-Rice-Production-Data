@@ -26,8 +26,8 @@ cleaning.R
 ```
 
 ### Explaining The files
-**raw data :** Contains the raw/messy/original data files.
-**cleaned data:** Contains the cleaned and combined data file.
-**BD rice.Rmd:** R markdown file, containing all the steps and explanation and codes used.
-**Cleaning-Bangladesh-Rice-Production-Data.Rproj:** RStudio project file.
-**Cleaning.R:** R script file containing all the r codes.
+**raw data :** Contains the raw/messy/original data files.</br>
+**cleaned data:** Contains the cleaned and combined data file.</br>
+**BD rice.Rmd:** R markdown file, containing all the steps and explanation and codes used.</br>
+**Cleaning-Bangladesh-Rice-Production-Data.Rproj:** RStudio project file.</br>
+**Cleaning.R:** R script file containing all the r codes.</br>
