@@ -1,15 +1,22 @@
 ---
-title: "Cleaning and exploring rice production, import and export data of Bangladesh"
+title: "Cleaning Bangladesh Rice Production Data"
 author: "Wahiduzzaman Khan"
-output: html_notebook
+output:
+  knitrBootstrap::bootstrap_document:
+    title: "Cleaning Bangladesh Rice Production Data"
+    theme: Cosmo
+    highlight: IR Black
+    theme.chooser: false
+    highlight.chooser: false
 ---
+# Cleaning Bangladesh Rice Production Data
 In this project we are going to take a look at the production, import and export of rice of Bangladesh.</br>
 You can download these data sets from [here](https://github.com/WahiduzzamanKhan/Cleaning-Bangladesh-Rice-Production-Data/tree/master/raw%20data). These data are collected from BRRI (Bangladesh Rice Research Institute) and WRS (World Rice Statistics).
 
-### Loading the required packages
+## Loading the required packages
 First we are going load all the packages that we are going to use:
 
-```{r}
+```{r, warning=FALSE}
 library(dplyr)
 library(tidyr)
 library(stringr)
@@ -17,7 +24,7 @@ library(readr)
 library(readxl)
 ```
 
-### Importing Rice Production data
+## Importing Rice Production data
 As all the packages are loaded, its time to read in the data. The first data file that we are going to read is the "rice production.xlsx". Opening this excel file we can see that there are 10 columns containing information about the harvested area, production and yield of the three variants of rice (Aus, Aman, Boro) for years 1971 to 2017. Lets import this file and store it as "RiceProduction".
 
 ```{r}
@@ -30,7 +37,7 @@ While Importing the data I skipped the first two rows because of their formattin
 glimpse(RiceProduction)
 ```
 
-### Cleaning Rice Production data
+## Cleaning Rice Production data
 We can see that the is imported correctly but the names of the variables are randomly given and this kind of names make the data hard to work with. So lets give them appropriate names that explains what information they contain.
 
 ```{r}
@@ -68,7 +75,7 @@ glimpse(RiceProduction)
 
 We can see the Year column has a single year in each row.</br>
 
-### Importing Rice Import and Export Data
+## Importing Rice Import and Export Data
 Now we are going to import the data from the "WRS.csv" file. It contains information about importing and exporting rice. We are going to store this dataset named as "RiceImEx".
 
 ```{r}
@@ -89,7 +96,7 @@ We are also going to change the column names to match the naming convention we a
 colnames(RiceImEx) <- c("Country", "Year", "ExportQuantity", "ExportValue", "ImportQuantity", "ImportValue")
 ```
 
-### Importing Rainfall Data
+## Importing Rainfall Data
 Now we are going to import data about rainfall from the file named "Rain.csv". This data is not about rice, but cultivation and production of rice heavily depends on rain. Thus rainfall data is very much relevant to this analysis. We are going to store this dataset named as "Rain".
 
 ```{r}
@@ -116,7 +123,7 @@ Rain <- Rain[,c(2,5)] %>% group_by(Year) %>% mutate(Rain = sum(RainFall, na.rm =
 Rain <- unique(Rain[,c(1,3)])
 ```
 
-### Merging All Together
+## Merging All Together
 Now, as all of our datasets are loaded and cleaned, we are going to combine them in a single dataset and name it "RiceData".
 
 ```{r}
@@ -127,12 +134,12 @@ temp <- full_join(temp, Rain)
 RiceData <- temp
 ```
 
-### Saving Cleaned Data
+## Saving Cleaned Data
 We are going to save this cleaned data in CSV format.
 
 ```{r}
 write_csv(RiceData, "cleaned data/cleaned rice data.csv")
 ```
 
-### Conclusion
+## Conclusion
 Now we have a cleaned, tidy data about the production, import, export of rice in Bangladesh, ready to perform analysis. We have also saved the cleaned dataset to use it in future if we need.

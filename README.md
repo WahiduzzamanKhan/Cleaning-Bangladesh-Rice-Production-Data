@@ -12,17 +12,15 @@ In this project I used:
 
 ### Project Stucture
 ```
-raw data
-|--- Rain.csv
-|--- WRS.csv
-|--- reice production.xlsx
-cleaned data
-|--- cleaned rice data.csv
-BD rice.Rmd
-|
-Cleaning-Bangladesh-Rice-Production-Data.Rproj
-|
-cleaning.R
+|---raw data
+|    |--- Rain.csv
+|    |--- WRS.csv
+|    |--- reice production.xlsx
+|---cleaned data
+|    |--- cleaned rice data.csv
+|---BD rice.Rmd
+|---Cleaning-Bangladesh-Rice-Production-Data.Rproj
+|---cleaning.R
 ```
 
 ### Explaining The files
