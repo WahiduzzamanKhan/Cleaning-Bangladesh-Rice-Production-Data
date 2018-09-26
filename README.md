@@ -1,6 +1,6 @@
 # Cleaning Bangladesh Rice Production Data
 
-In this project I am going to clean the rice production, import and export data of Bangladesh in order to perform some analysis and visualization.
+In this project I am going to clean the rice production, import and export data of Bangladesh in order to perform some analysis and visualization on them in future.
 
 ### Requirements
 In this project I used:
@@ -25,8 +25,6 @@ BD rice.Rmd
 Cleaning-Bangladesh-Rice-Production-Data.Rproj
 |
 cleaning.R
-|
-README.md
 
 ### Explaining The files
 
