@@ -16,15 +16,11 @@ raw data</br>
 |--- Rain.csv</br>
 |--- WRS.csv</br>
 |--- reice production.xlsx</br>
-|</br>
 cleaned data</br>
 |--- cleaned rice data.csv</br>
-|</br>
 BD rice.Rmd</br>
-|</br>
 Cleaning-Bangladesh-Rice-Production-Data.Rproj</br>
-|</br>
-cleaning.R</br>
+cleaning.R
 
 ### Explaining The files
 
