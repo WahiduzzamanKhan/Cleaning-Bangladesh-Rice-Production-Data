@@ -12,19 +12,19 @@ In this project I used:
 + readXL
 
 ### Project Stucture
-raw data
-|--- Rain.csv
-|--- WRS.csv
-|--- reice production.xlsx
-|
-cleaned data
-|--- cleaned rice data.csv
-|
-BD rice.Rmd
-|
-Cleaning-Bangladesh-Rice-Production-Data.Rproj
-|
-cleaning.R
+raw data</br>
+|--- Rain.csv</br>
+|--- WRS.csv</br>
+|--- reice production.xlsx</br>
+|</br>
+cleaned data</br>
+|--- cleaned rice data.csv</br>
+|</br>
+BD rice.Rmd</br>
+|</br>
+Cleaning-Bangladesh-Rice-Production-Data.Rproj</br>
+|</br>
+cleaning.R</br>
 
 ### Explaining The files
 
