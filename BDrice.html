@@ -874,7 +874,7 @@ Cleaning Bangladesh Rice Production Data
 <div class="row row-offcanvas row-offcanvas-right">
 <div class="contents col-xs-12 col-md-10">
 <h1 id="cleaning-bangladesh-rice-production-data">Cleaning Bangladesh Rice Production Data</h1>
-<p>In this project we are going to take a look at the production, import and export of rice of Bangladesh.</br> You can download these data sets from <a href="https://github.com/WahiduzzamanKhan/Cleaning-Bangladesh-Rice-Production-Data/tree/master/raw%20data">here</a>. These data are collected from BRRI (Bangladesh Rice Research Institute) and WRS (World Rice Statistics).</p>
+<p>In this project, we are going to take a look at the production, import, and export of rice of Bangladesh. You can download these datasets from <a href="https://github.com/WahiduzzamanKhan/Cleaning-Bangladesh-Rice-Production-Data/tree/master/raw%20data">here</a>. These data are collected from BRRI (Bangladesh Rice Research Institute) and WRS (World Rice Statistics).</p>
 <h2 id="loading-the-required-packages">Loading the required packages</h2>
 <p>First, we are going to load all the packages that we are going to use:</p>
 <div class="row">
@@ -911,14 +911,14 @@ library(readr)
 library(readxl)</code></pre>
 </div>
 <h2 id="importing-rice-production-data">Importing Rice Production data</h2>
-<p>As all the packages are loaded, it's time to read in the data. The first data file that we are going to read is the &quot;rice production.xlsx&quot;. Opening this excel file we can see that there are 10 columns containing information about the harvested area, production and yield of the three variants of rice (Aus, Amman, Boro) for the years 1971 to 2017. Lets import this file and store it as &quot;RiceProduction&quot;.</p>
+<p>As all the packages are loaded, it's time to read in the data. The first data file that we are going to read is the &quot;rice production.xlsx&quot;. Opening this excel file we can see that there are 10 columns containing information about the harvested area, production and yield of the three variants of rice (Aus, Amman, Boro) for the years 1971 to 2017. Let's import this file and store it as &quot;RiceProduction&quot;.</p>
 <div class="row">
 <button class="source R toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> R source
 </button>
 <pre style=""><code class="source r">RiceProduction <- read_excel("raw data/rice production.xlsx", skip = 2, col_names = F)</code></pre>
 </div>
-<p>While Importing the data I skipped the first two rows because of their formatting. The way those two rows are formatted they are going to make a mess if they are imported. I also specified that the imported rows do not contain column names. So now lets take a look at the imported data.</p>
+<p>While Importing the data I skipped the first two rows because of their formatting. The way those two rows are formatted they are going to make a mess if they are imported. I also specified that the imported rows do not contain column names. So now let's take a look at the imported data.</p>
 <div class="row">
 <button class="source R toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> R source
@@ -942,7 +942,7 @@ library(readxl)</code></pre>
 </code></pre>
 </div>
 <h2 id="cleaning-rice-production-data">Cleaning Rice Production data</h2>
-<p>We can see that the is imported correctly, but the names of the variables are randomly given and this kind of names makes the data hard to work with. So lets give them appropriate names that explains what information they contain.</p>
+<p>We can see that the is imported correctly, but the names of the variables are randomly given and this kind of names makes the data hard to work with. So let's give them appropriate names that explain what information they contain.</p>
 <div class="row">
 <button class="source R toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> R source
@@ -967,7 +967,7 @@ glimpse(RiceProduction)</code></pre>
 </code></pre>
 </div>
 <p>``</p>
-<p>This already looks much better. In this data set, the areas cultivated are expressed in 1000 hectors and produced amounts are expressed in 1000 tonnes. But for analysis, we want them to show actual amount. So we have to multiply those columns by 1000. To do this we are going to create a function called &quot;multiplier&quot;.</p>
+<p>This already looks much better. In this data set, the areas cultivated are expressed in 1000 hectors and produced amounts are expressed in 1000 tonnes. But for analysis, we want them to show the actual amount. So we have to multiply those columns by 1000. To do this we are going to create a function called &quot;multiplier&quot;.</p>
 <div class="row">
 <button class="source R toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> R source
@@ -987,7 +987,7 @@ glimpse(RiceProduction)</code></pre>
 </button>
 <pre style=""><code class="source r">RiceProduction <- multiplier(RiceProduction, c(2,3,4,5,6,7), 1000)</code></pre>
 </div>
-<p>Now that we have the actual values, let's put our concentration on the Year column now. We can see it has a range of years instead of a single year. In this analysis we are going to consider the lower bound as the year and remove the upper bound. We are also going to change &quot;Year&quot; column from character type to integers. We accomplish this by running the following code:</p>
+<p>Now that we have the actual values, let's put our concentration on the Year column now. We can see it has a range of years instead of a single year. In this analysis, we are going to consider the lower bound as the year and remove the upper bound. We are also going to change &quot;Year&quot; column from character type to integers. We accomplish this by running the following code:</p>
 <div class="row">
 <button class="source R toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> R source
@@ -1097,14 +1097,14 @@ RiceImEx <- multiplier(RiceImEx, c(4,6), 1000)</code></pre>
 <pre style=""><code class="message r">## See spec(...) for full column specifications.
 </code></pre>
 </div>
-<p>From this we get a dataset that has 34 columns. The first column named &quot;Station&quot; represent the weather station from where we got the data. Then we have &quot;Year&quot;, &quot;Month&quot;, then more 31 columns representing days of the month. The last 31 columns contain the total amount of rainfall on that day. We are going to reshape this in a fashion so that, each day of a month gets a different row instead of a column.</p>
+<p>From this, we get a dataset that has 34 columns. The first column named &quot;Station&quot; represent the weather station from where we got the data. Then we have &quot;Year&quot;, &quot;Month&quot;, then more 31 columns representing days of the month. The last 31 columns contain the total amount of rainfall on that day. We are going to reshape this in a fashion so that, each day of a month gets a different row instead of a column.</p>
 <div class="row">
 <button class="source R toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> R source
 </button>
 <pre style=""><code class="source r">Rain <- gather(Rain, Day, RainFall, -Station, -Year, -Month)</code></pre>
 </div>
-<p>The &quot;Rainfall&quot; column has &quot;***&quot; as value. In this case it represents a missing value. For this study we are going to replace all the missing values by &quot;0&quot;, assuming that it did not rain that day. Also, we are going to change this column from a character type to a numeric type.</p>
+<p>The &quot;Rainfall&quot; column has &quot;***&quot; as value. In this case, it represents a missing value. For this study we are going to replace all the missing values by &quot;0&quot;, assuming that it did not rain that day. Also, we are going to change this column from a character type to a numeric type.</p>
 <div class="row">
 <button class="source R toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> R source
@@ -1170,7 +1170,7 @@ temp <- full_join(RiceData, RiceProduction)</code></pre>
 <pre style=""><code class="source r">write_csv(RiceData, "cleaned data/cleaned rice data.csv")</code></pre>
 </div>
 <h2 id="conclusion">Conclusion</h2>
-Now we have a cleaned, tidy, data about the production, import and export of rice in Bangladesh, ready to perform analysis on. We have also saved the cleaned dataset to use it in future if we need.
+Now we have a cleaned, tidy, data about the production, import, and export of rice in Bangladesh, ready to perform analysis on. We have also saved the cleaned dataset to use it in future if we need.
 </div>
 </div>
 <div class="navbar navbar-fixed-bottom navbar-inverse">
