@@ -25,13 +25,13 @@ library(readxl)
 ```
 
 ## Importing Rice Production data
-As all the packages are loaded, it's time to read in the data. The first data file that we are going to read is the "rice production.xlsx". Opening this excel file we can see that there are 10 columns containing information about the harvested area, production and yield of the three variants of rice (Aus, Amman, Boro) for the years 1971 to 2017. Let's import this file and store it as "RiceProduction".
+As all the packages are loaded, it's time to read in the data. The first data file that we are going to read is the "rice production.xlsx". Opening this excel file we can see that there are 10 columns containing information about the cultivated area, production and yield of the three variants of rice (Aus, Amman, Boro) for the years 1971 to 2017. Let's import this file and store it as "RiceProduction".
 
 ```{r}
 RiceProduction <- read_excel("raw data/rice production.xlsx", skip = 2, col_names = F)
 ```
 
-While Importing the data I skipped the first two rows because of their formatting. The way those two rows are formatted they are going to make a mess if they are imported. I also specified that the imported rows do not contain column names. So now let's take a look at the imported data.
+While Importing the data I skipped the first two rows because of their formatting. The way those two rows are formatted, they are going to make a mess if they are imported. I also specified that the imported rows do not contain column names. So now let's take a look at the imported data.
 
 ```{r}
 glimpse(RiceProduction)
@@ -42,34 +42,69 @@ We can see that the is imported correctly, but the names of the variables are ra
 
 ```{r}
 colnames(RiceProduction) <- c("Year", "AreaAus", "AreaAman", "AreaBoro", "ProAus", "ProAman", "ProBoro", "YieldAus", "YieldAman", "YieldBoro")
-glimpse(RiceProduction)
+RiceProduction
 ```
 ``
 
-This already looks much better. In this data set, the areas cultivated are expressed in 1000 hectors and produced amounts are expressed in 1000 tonnes. But for analysis, we want them to show the actual amount. So we have to multiply those columns by 1000. To do this we are going to create a function called "multiplier".
+Taking a look at the dataset we can see that the data is not in tidydata format. The here isi wide and to make it tidy we have to make it long. After the transformation the data set should look like this:
 
+![tidy data](Capture.JPG)
+
+To achieve this we divide this dataset into three datasets, each containing information about only one type of rice.
 ```{r}
-multiplier <- function(table, i, n){
-    table_final <- table
-    for (i in i) {
-        table_final[,i] <- table_final[,i] * n
-    }
-    return(table_final)
-}
+# creating Aus dataset only taking columns about aus
+Aus <- RiceProduction[,c(1,2,5,8)] 
+# creating new RiceType column in Aus
+Aus <- Aus %>% mutate(RiceType = "Aus")
+# giving the columns appropriate names
+names <- c("Year", "CultivatedArea", "Production", "Yield", "RiceType")
+colnames(Aus) <- names 
+# reordering the columns
+order <- c("Year", "RiceType", "CultivatedArea", "Production", "Yield")
+Aus <- Aus %>% select(order)
+
+Aus
 ```
 
-This function takes a dataset, column numbers and a numeric value as arguments and multiplies all those columns by the provided numerical value.
-
+Here we can see the Aus dataset is in tidydata format. Now, we repeat this process for Aman and Boro.
 ```{r}
-RiceProduction <- multiplier(RiceProduction, c(2,3,4,5,6,7), 1000)
+Aman <- RiceProduction[,c(1,3,6,9)]
+Aman <- Aman %>% mutate(RiceType = "Aman") 
+colnames(Aman) <- names
+Aman <- Aman %>% select(order)
+
+Boro <- RiceProduction[,c(1,4,7,10)]
+Boro <- Boro %>% mutate(RiceType = "Boro") 
+colnames(Boro) <- names
+Boro <- Boro %>% select(order)
 ```
 
-Now that we have the actual values, let's put our concentration on the Year column now. We can see it has a range of years instead of a single year. In this analysis, we are going to consider the lower bound as the year and remove the upper bound. We are also going to change "Year" column from character type to integers. We accomplish this by running the following code:
+
+Now we combine these three datasets together in our riginal RiceProduction dataset.
+```{r}
+RiceProduction <- full_join(Aus, Aman)
+RiceProduction <- full_join(RiceProduction, Boro)
+```
+
+
+In this data set, the areas cultivated are expressed in 1000 hectors and produced amounts are expressed in 1000 tonnes. But for analysis, we want them to show the actual amount. So we have to multiply those columns by 1000.
+```{r}
+RiceProduction <- RiceProduction %>% 
+    mutate(CultivatedArea = CultivatedArea*1000) %>%
+    mutate(Production = Production*1000)
+```
+
+
+Now that we have the actual values, let's put our concentration on the Year column now. We can see it has a range of years instead of a single year. In this analysis, we are going to consider the lower bound as the year and remove the upper bound and make them integers. We accomplish this by running the following code:
 
 ```{r}
+# separating lower bound and deleting upper bound
 RiceProduction <- separate(RiceProduction, Year, c("Year"), sep = "-")
+# making Year integer
 RiceProduction$Year <- as.integer(RiceProduction$Year)
-glimpse(RiceProduction)
+# sorting dataset according to Year
+RiceProduction <- RiceProduction[order(RiceProduction$Year),]
+RiceProduction
 ```
 
 We can see the Year column has a single year in each row.</br>
@@ -79,21 +114,19 @@ Now we are going to import the data from the "WRS.csv" file. It contains informa
 
 ```{r}
 RiceImEx <- read_csv("raw data/WRS.csv")
-glimpse(RiceImEx)
+RiceImEx
 ```
 
-It is visible that the column "Variable" contains values that should have their own column. So we are going to use the following code to give each of the values of "Variable" column their own column and discard the "Source" and "Unit" column.
+It is visible that the column "Variable" contains values that should have their own column. So we are going to use the following code to give each of the values of "Variable" column their own column and discard the "Country", "Source" and "Unit" column. Then, we are going to change the column names to match the naming convention we are following. Also, the export and import values are given in 1000 USD. So, to get actual value we are going to multiply them by 1000.
 
 ```{r}
-RiceImEx <- spread(RiceImEx[,c(-4,-6)], Variable, Value)
-RiceImEx <- multiplier(RiceImEx, c(4,6), 1000)
+RiceImEx <- spread(RiceImEx[,c(-1,-4,-6)], Variable, Value)
+colnames(RiceImEx) <- c("Year", "ExportQuantity", "ExportValue", "ImportQuantity", "ImportValue")
+RiceImEx$ExportValue <- RiceImEx$ExportValue * 1000
+RiceImEx$ImportValue <- RiceImEx$ImportValue * 1000
+RiceImEx <- RiceImEx[order(RiceImEx$Year),]
 ```
 
-We are also going to change the column names to match the naming convention we are following.
-
-```{r}
-colnames(RiceImEx) <- c("Country", "Year", "ExportQuantity", "ExportValue", "ImportQuantity", "ImportValue")
-```
 
 ## Importing Rainfall Data
 Now it is time to import data about rainfall from the file named "Rain.csv". This data is not about rice, but the cultivation and production of rice heavily depend on rain. Thus, rainfall data are very much relevant to this analysis. We are going to store this dataset named as "Rain".
@@ -126,18 +159,15 @@ Rain <- unique(Rain[,c(1,3)])
 Now, as all of our datasets are loaded and cleaned, we are going to combine them in a single dataset and name it "RiceData".
 
 ```{r}
-RiceData <- tibble(Year = 1948:2018)
-temp <- full_join(RiceData, RiceProduction)
-temp <- full_join(temp, RiceImEx[,-1])
-temp <- full_join(temp, Rain)
-RiceData <- temp
+RiceData <- full_join(RiceProduction, RiceImEx, by = "Year")
+RiceData <- full_join(RiceData, Rain, by = "Year")
 ```
 
 ## Saving Cleaned Data
 We are going to save this cleaned data in CSV format.
 
 ```{r}
-write_csv(RiceData, "cleaned data/cleaned rice data.csv")
+write_csv(RiceData, "cleaned data/CleanedRiceData.csv")
 ```
 
 ## Conclusion

@@ -911,14 +911,14 @@ library(readr)
 library(readxl)</code></pre>
 </div>
 <h2 id="importing-rice-production-data">Importing Rice Production data</h2>
-<p>As all the packages are loaded, it's time to read in the data. The first data file that we are going to read is the &quot;rice production.xlsx&quot;. Opening this excel file we can see that there are 10 columns containing information about the harvested area, production and yield of the three variants of rice (Aus, Amman, Boro) for the years 1971 to 2017. Let's import this file and store it as &quot;RiceProduction&quot;.</p>
+<p>As all the packages are loaded, it's time to read in the data. The first data file that we are going to read is the &quot;rice production.xlsx&quot;. Opening this excel file we can see that there are 10 columns containing information about the cultivated area, production and yield of the three variants of rice (Aus, Amman, Boro) for the years 1971 to 2017. Let's import this file and store it as &quot;RiceProduction&quot;.</p>
 <div class="row">
 <button class="source R toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> R source
 </button>
 <pre style=""><code class="source r">RiceProduction <- read_excel("raw data/rice production.xlsx", skip = 2, col_names = F)</code></pre>
 </div>
-<p>While Importing the data I skipped the first two rows because of their formatting. The way those two rows are formatted they are going to make a mess if they are imported. I also specified that the imported rows do not contain column names. So now let's take a look at the imported data.</p>
+<p>While Importing the data I skipped the first two rows because of their formatting. The way those two rows are formatted, they are going to make a mess if they are imported. I also specified that the imported rows do not contain column names. So now let's take a look at the imported data.</p>
 <div class="row">
 <button class="source R toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> R source
@@ -948,77 +948,149 @@ library(readxl)</code></pre>
 <span class="glyphicon glyphicon-chevron-down"></span> R source
 </button>
 <pre style=""><code class="source r">colnames(RiceProduction) <- c("Year", "AreaAus", "AreaAman", "AreaBoro", "ProAus", "ProAman", "ProBoro", "YieldAus", "YieldAman", "YieldBoro")
-glimpse(RiceProduction)</code></pre>
+RiceProduction</code></pre>
 <button class="output R toggle btn btn-xs btn-success">
 <span class="glyphicon glyphicon-chevron-down"></span> R output
 </button>
-<pre style=""><code class="output r">## Observations: 46
-## Variables: 10
-## $ Year      <chr> "1971-72", "1972-73", "1973-74", "1974-75", "1975-76...
-## $ AreaAus   <dbl> 3001.60, 2930.00, 3107.90, 3179.10, 3419.90, 3217.10...
-## $ AreaAman  <dbl> 5410.70, 5713.80, 5718.70, 5449.90, 5759.90, 5806.40...
-## $ AreaBoro  <dbl> 866.40, 1002.60, 1222.70, 1161.20, 1147.90, 854.20, ...
-## $ ProAus    <dbl> 2341.0, 2243.0, 2801.0, 2859.0, 3229.0, 3014.0, 3103...
-## $ ProAman   <dbl> 5695.0, 5587.0, 6699.0, 6000.0, 7045.0, 6905.0, 7422...
-## $ ProBoro   <dbl> 1738.0, 2071.0, 2220.0, 2250.0, 2286.0, 1650.0, 2239...
-## $ YieldAus  <dbl> 0.78, 0.77, 0.90, 0.90, 0.94, 0.94, 0.98, 1.02, 0.93...
-## $ YieldAman <dbl> 1.05, 0.98, 1.17, 1.10, 1.22, 1.19, 1.29, 1.28, 1.22...
-## $ YieldBoro <dbl> 2.01, 2.07, 1.82, 1.94, 1.99, 1.93, 2.05, 1.80, 2.11...
+<pre style=""><code class="output r">## # A tibble: 46 x 10
+##    Year  AreaAus AreaAman AreaBoro ProAus ProAman ProBoro YieldAus
+##    <chr>   <dbl>    <dbl>    <dbl>  <dbl>   <dbl>   <dbl>    <dbl>
+##  1 1971~   3002.    5411.     866.   2341    5695    1738     0.78
+##  2 1972~   2930     5714.    1003.   2243    5587    2071     0.77
+##  3 1973~   3108.    5719.    1223.   2801    6699    2220     0.9 
+##  4 1974~   3179.    5450.    1161.   2859    6000    2250     0.9 
+##  5 1975~   3420.    5760.    1148.   3229    7045    2286     0.94
+##  6 1976~   3217.    5806.     854.   3014    6905    1650     0.94
+##  7 1977~   3162.    5771.    1094.   3103    7422    2239     0.98
+##  8 1978~   3235.    5805.    1072.   3287    7429    1929     1.02
+##  9 1979~   3036.    5973.    1148.   2809    7303    2427     0.93
+## 10 1980~   3111.    6036.    1160    3289    7964    2630     1.06
+## # ... with 36 more rows, and 2 more variables: YieldAman <dbl>,
+## #   YieldBoro <dbl>
 </code></pre>
 </div>
 <p>``</p>
-<p>This already looks much better. In this data set, the areas cultivated are expressed in 1000 hectors and produced amounts are expressed in 1000 tonnes. But for analysis, we want them to show the actual amount. So we have to multiply those columns by 1000. To do this we are going to create a function called &quot;multiplier&quot;.</p>
+<p>Taking a look at the dataset we can see that the data is not in tidydata format. The here isi wide and to make it tidy we have to make it long. After the transformation the data set should look like this:</p>
+<p><img src="Capture.JPG" alt="tidy data" /></p>
+To achieve this we divide this dataset into three datasets, each containing information about only one type of rice.
 <div class="row">
 <button class="source R toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> R source
 </button>
-<pre style=""><code class="source r">multiplier <- function(table, i, n){
-    table_final <- table
-    for (i in i) {
-        table_final[,i] <- table_final[,i] * n
-    }
-    return(table_final)
-}</code></pre>
+<pre style=""><code class="source r"># creating Aus dataset only taking columns about aus
+Aus <- RiceProduction[,c(1,2,5,8)] 
+# creating new RiceType column in Aus
+Aus <- Aus %>% mutate(RiceType = "Aus")
+# giving the columns appropriate names
+names <- c("Year", "CultivatedArea", "Production", "Yield", "RiceType")
+colnames(Aus) <- names 
+# reordering the columns
+order <- c("Year", "RiceType", "CultivatedArea", "Production", "Yield")
+Aus <- Aus %>% select(order)
+
+Aus</code></pre>
+<button class="output R toggle btn btn-xs btn-success">
+<span class="glyphicon glyphicon-chevron-down"></span> R output
+</button>
+<pre style=""><code class="output r">## # A tibble: 46 x 5
+##    Year    RiceType CultivatedArea Production Yield
+##    <chr>   <chr>             <dbl>      <dbl> <dbl>
+##  1 1971-72 Aus               3002.       2341  0.78
+##  2 1972-73 Aus               2930        2243  0.77
+##  3 1973-74 Aus               3108.       2801  0.9 
+##  4 1974-75 Aus               3179.       2859  0.9 
+##  5 1975-76 Aus               3420.       3229  0.94
+##  6 1976-77 Aus               3217.       3014  0.94
+##  7 1977-78 Aus               3162.       3103  0.98
+##  8 1978-79 Aus               3235.       3287  1.02
+##  9 1979-80 Aus               3036.       2809  0.93
+## 10 1980-81 Aus               3111.       3289  1.06
+## # ... with 36 more rows
+</code></pre>
 </div>
-<p>This function takes a dataset, column numbers and a numeric value as arguments and multiplies all those columns by the provided numerical value.</p>
+Here we can see the Aus dataset is in tidydata format. Now, we repeat this process for Aman and Boro.
 <div class="row">
 <button class="source R toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> R source
 </button>
-<pre style=""><code class="source r">RiceProduction <- multiplier(RiceProduction, c(2,3,4,5,6,7), 1000)</code></pre>
+<pre style=""><code class="source r">Aman <- RiceProduction[,c(1,3,6,9)]
+Aman <- Aman %>% mutate(RiceType = "Aman") 
+colnames(Aman) <- names
+Aman <- Aman %>% select(order)
+
+Boro <- RiceProduction[,c(1,4,7,10)]
+Boro <- Boro %>% mutate(RiceType = "Boro") 
+colnames(Boro) <- names
+Boro <- Boro %>% select(order)</code></pre>
 </div>
-<p>Now that we have the actual values, let's put our concentration on the Year column now. We can see it has a range of years instead of a single year. In this analysis, we are going to consider the lower bound as the year and remove the upper bound. We are also going to change &quot;Year&quot; column from character type to integers. We accomplish this by running the following code:</p>
+Now we combine these three datasets together in our riginal RiceProduction dataset.
 <div class="row">
 <button class="source R toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> R source
 </button>
-<pre style=""><code class="source r">RiceProduction <- separate(RiceProduction, Year, c("Year"), sep = "-")</code></pre>
+<pre style=""><code class="source r">RiceProduction <- full_join(Aus, Aman)</code></pre>
+<button class="message R toggle btn btn-xs btn-info">
+<span class="glyphicon glyphicon-chevron-down"></span> R message
+</button>
+<pre style=""><code class="message r">## Joining, by = c("Year", "RiceType", "CultivatedArea", "Production", "Yield")
+</code></pre>
+<button class="source R toggle btn btn-xs btn-primary">
+<span class="glyphicon glyphicon-chevron-down"></span> R source
+</button>
+<pre style=""><code class="source r">RiceProduction <- full_join(RiceProduction, Boro)</code></pre>
+<button class="message R toggle btn btn-xs btn-info">
+<span class="glyphicon glyphicon-chevron-down"></span> R message
+</button>
+<pre style=""><code class="message r">## Joining, by = c("Year", "RiceType", "CultivatedArea", "Production", "Yield")
+</code></pre>
+</div>
+In this data set, the areas cultivated are expressed in 1000 hectors and produced amounts are expressed in 1000 tonnes. But for analysis, we want them to show the actual amount. So we have to multiply those columns by 1000.
+<div class="row">
+<button class="source R toggle btn btn-xs btn-primary">
+<span class="glyphicon glyphicon-chevron-down"></span> R source
+</button>
+<pre style=""><code class="source r">RiceProduction <- RiceProduction %>% 
+    mutate(CultivatedArea = CultivatedArea*1000) %>%
+    mutate(Production = Production*1000)</code></pre>
+</div>
+<p>Now that we have the actual values, let's put our concentration on the Year column now. We can see it has a range of years instead of a single year. In this analysis, we are going to consider the lower bound as the year and remove the upper bound and make them integers. We accomplish this by running the following code:</p>
+<div class="row">
+<button class="source R toggle btn btn-xs btn-primary">
+<span class="glyphicon glyphicon-chevron-down"></span> R source
+</button>
+<pre style=""><code class="source r"># separating lower bound and deleting upper bound
+RiceProduction <- separate(RiceProduction, Year, c("Year"), sep = "-")</code></pre>
 <button class="warning R toggle btn btn-xs btn-warning">
 <span class="glyphicon glyphicon-chevron-down"></span> R warning
 </button>
-<pre style=""><code class="warning r">## Warning: Expected 1 pieces. Additional pieces discarded in 46 rows [1, 2,
+<pre style=""><code class="warning r">## Warning: Expected 1 pieces. Additional pieces discarded in 138 rows [1, 2,
 ## 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, ...].
 </code></pre>
 <button class="source R toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> R source
 </button>
-<pre style=""><code class="source r">RiceProduction$Year <- as.integer(RiceProduction$Year)
-glimpse(RiceProduction)</code></pre>
+<pre style=""><code class="source r"># making Year integer
+RiceProduction$Year <- as.integer(RiceProduction$Year)
+# sorting dataset according to Year
+RiceProduction <- RiceProduction[order(RiceProduction$Year),]
+RiceProduction</code></pre>
 <button class="output R toggle btn btn-xs btn-success">
 <span class="glyphicon glyphicon-chevron-down"></span> R output
 </button>
-<pre style=""><code class="output r">## Observations: 46
-## Variables: 10
-## $ Year      <int> 1971, 1972, 1973, 1974, 1975, 1976, 1977, 1978, 1979...
-## $ AreaAus   <dbl> 3001600, 2930000, 3107900, 3179100, 3419900, 3217100...
-## $ AreaAman  <dbl> 5410700, 5713800, 5718700, 5449900, 5759900, 5806400...
-## $ AreaBoro  <dbl> 866400, 1002600, 1222700, 1161200, 1147900, 854200, ...
-## $ ProAus    <dbl> 2341000, 2243000, 2801000, 2859000, 3229000, 3014000...
-## $ ProAman   <dbl> 5695000, 5587000, 6699000, 6000000, 7045000, 6905000...
-## $ ProBoro   <dbl> 1738000, 2071000, 2220000, 2250000, 2286000, 1650000...
-## $ YieldAus  <dbl> 0.78, 0.77, 0.90, 0.90, 0.94, 0.94, 0.98, 1.02, 0.93...
-## $ YieldAman <dbl> 1.05, 0.98, 1.17, 1.10, 1.22, 1.19, 1.29, 1.28, 1.22...
-## $ YieldBoro <dbl> 2.01, 2.07, 1.82, 1.94, 1.99, 1.93, 2.05, 1.80, 2.11...
+<pre style=""><code class="output r">## # A tibble: 138 x 5
+##     Year RiceType CultivatedArea Production Yield
+##    <int> <chr>             <dbl>      <dbl> <dbl>
+##  1  1971 Aus             3001600    2341000  0.78
+##  2  1971 Aman            5410700    5695000  1.05
+##  3  1971 Boro             866400    1738000  2.01
+##  4  1972 Aus             2930000    2243000  0.77
+##  5  1972 Aman            5713800    5587000  0.98
+##  6  1972 Boro            1002600    2071000  2.07
+##  7  1973 Aus             3107900    2801000  0.9 
+##  8  1973 Aman            5718700    6699000  1.17
+##  9  1973 Boro            1222700    2220000  1.82
+## 10  1974 Aus             3179100    2859000  0.9 
+## # ... with 128 more rows
 </code></pre>
 </div>
 <p>We can see the Year column has a single year in each row.</br></p>
@@ -1045,34 +1117,36 @@ glimpse(RiceProduction)</code></pre>
 <button class="source R toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> R source
 </button>
-<pre style=""><code class="source r">glimpse(RiceImEx)</code></pre>
+<pre style=""><code class="source r">RiceImEx</code></pre>
 <button class="output R toggle btn btn-xs btn-success">
 <span class="glyphicon glyphicon-chevron-down"></span> R output
 </button>
-<pre style=""><code class="output r">## Observations: 147
-## Variables: 6
-## $ Country  <chr> "BANGLADESH", "BANGLADESH", "BANGLADESH", "BANGLADESH...
-## $ Year     <int> 2017, 2016, 2015, 2014, 1980, 2016, 2015, 2014, 2013,...
-## $ Variable <chr> "EXPORT QUANTITY", "EXPORT QUANTITY", "EXPORT QUANTIT...
-## $ Source   <chr> "USDA", "USDA", "USDA", "USDA", "USDA", "FAO", "FAO",...
-## $ Value    <dbl> 4000, 4000, 4000, 25000, 20000, 4254, 6048, 4477, 338...
-## $ Unit     <chr> "tonnes", "tonnes", "tonnes", "tonnes", "tonnes", "10...
+<pre style=""><code class="output r">## # A tibble: 147 x 6
+##    Country     Year Variable        Source Value Unit    
+##    <chr>      <int> <chr>           <chr>  <dbl> <chr>   
+##  1 BANGLADESH  2017 EXPORT QUANTITY USDA    4000 tonnes  
+##  2 BANGLADESH  2016 EXPORT QUANTITY USDA    4000 tonnes  
+##  3 BANGLADESH  2015 EXPORT QUANTITY USDA    4000 tonnes  
+##  4 BANGLADESH  2014 EXPORT QUANTITY USDA   25000 tonnes  
+##  5 BANGLADESH  1980 EXPORT QUANTITY USDA   20000 tonnes  
+##  6 BANGLADESH  2016 EXPORT VALUE    FAO     4254 1000 US$
+##  7 BANGLADESH  2015 EXPORT VALUE    FAO     6048 1000 US$
+##  8 BANGLADESH  2014 EXPORT VALUE    FAO     4477 1000 US$
+##  9 BANGLADESH  2013 EXPORT VALUE    FAO     3386 1000 US$
+## 10 BANGLADESH  2012 EXPORT VALUE    FAO     2767 1000 US$
+## # ... with 137 more rows
 </code></pre>
 </div>
-<p>It is visible that the column &quot;Variable&quot; contains values that should have their own column. So we are going to use the following code to give each of the values of &quot;Variable&quot; column their own column and discard the &quot;Source&quot; and &quot;Unit&quot; column.</p>
+<p>It is visible that the column &quot;Variable&quot; contains values that should have their own column. So we are going to use the following code to give each of the values of &quot;Variable&quot; column their own column and discard the &quot;Country&quot;, &quot;Source&quot; and &quot;Unit&quot; column. Then, we are going to change the column names to match the naming convention we are following. Also, the export and import values are given in 1000 USD. So, to get actual value we are going to multiply them by 1000.</p>
 <div class="row">
 <button class="source R toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> R source
 </button>
-<pre style=""><code class="source r">RiceImEx <- spread(RiceImEx[,c(-4,-6)], Variable, Value)
-RiceImEx <- multiplier(RiceImEx, c(4,6), 1000)</code></pre>
-</div>
-<p>We are also going to change the column names to match the naming convention we are following.</p>
-<div class="row">
-<button class="source R toggle btn btn-xs btn-primary">
-<span class="glyphicon glyphicon-chevron-down"></span> R source
-</button>
-<pre style=""><code class="source r">colnames(RiceImEx) <- c("Country", "Year", "ExportQuantity", "ExportValue", "ImportQuantity", "ImportValue")</code></pre>
+<pre style=""><code class="source r">RiceImEx <- spread(RiceImEx[,c(-1,-4,-6)], Variable, Value)
+colnames(RiceImEx) <- c("Year", "ExportQuantity", "ExportValue", "ImportQuantity", "ImportValue")
+RiceImEx$ExportValue <- RiceImEx$ExportValue * 1000
+RiceImEx$ImportValue <- RiceImEx$ImportValue * 1000
+RiceImEx <- RiceImEx[order(RiceImEx$Year),]</code></pre>
 </div>
 <h2 id="importing-rainfall-data">Importing Rainfall Data</h2>
 <p>Now it is time to import data about rainfall from the file named &quot;Rain.csv&quot;. This data is not about rice, but the cultivation and production of rice heavily depend on rain. Thus, rainfall data are very much relevant to this analysis. We are going to store this dataset named as &quot;Rain&quot;.</p>
@@ -1131,35 +1205,8 @@ Rain <- unique(Rain[,c(1,3)])</code></pre>
 <button class="source R toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> R source
 </button>
-<pre style=""><code class="source r">RiceData <- tibble(Year = 1948:2018)
-temp <- full_join(RiceData, RiceProduction)</code></pre>
-<button class="message R toggle btn btn-xs btn-info">
-<span class="glyphicon glyphicon-chevron-down"></span> R message
-</button>
-<pre style=""><code class="message r">## Joining, by = "Year"
-</code></pre>
-<button class="source R toggle btn btn-xs btn-primary">
-<span class="glyphicon glyphicon-chevron-down"></span> R source
-</button>
-<pre style=""><code class="source r">temp <- full_join(temp, RiceImEx[,-1])</code></pre>
-<button class="message R toggle btn btn-xs btn-info">
-<span class="glyphicon glyphicon-chevron-down"></span> R message
-</button>
-<pre style=""><code class="message r">## Joining, by = "Year"
-</code></pre>
-<button class="source R toggle btn btn-xs btn-primary">
-<span class="glyphicon glyphicon-chevron-down"></span> R source
-</button>
-<pre style=""><code class="source r">temp <- full_join(temp, Rain)</code></pre>
-<button class="message R toggle btn btn-xs btn-info">
-<span class="glyphicon glyphicon-chevron-down"></span> R message
-</button>
-<pre style=""><code class="message r">## Joining, by = "Year"
-</code></pre>
-<button class="source R toggle btn btn-xs btn-primary">
-<span class="glyphicon glyphicon-chevron-down"></span> R source
-</button>
-<pre style=""><code class="source r">RiceData <- temp</code></pre>
+<pre style=""><code class="source r">RiceData <- full_join(RiceProduction, RiceImEx, by = "Year")
+RiceData <- full_join(RiceData, Rain, by = "Year")</code></pre>
 </div>
 <h2 id="saving-cleaned-data">Saving Cleaned Data</h2>
 <p>We are going to save this cleaned data in CSV format.</p>
@@ -1167,7 +1214,7 @@ temp <- full_join(RiceData, RiceProduction)</code></pre>
 <button class="source R toggle btn btn-xs btn-primary">
 <span class="glyphicon glyphicon-chevron-down"></span> R source
 </button>
-<pre style=""><code class="source r">write_csv(RiceData, "cleaned data/cleaned rice data.csv")</code></pre>
+<pre style=""><code class="source r">write_csv(RiceData, "cleaned data/CleanedRiceData.csv")</code></pre>
 </div>
 <h2 id="conclusion">Conclusion</h2>
 Now we have a cleaned, tidy, data about the production, import, and export of rice in Bangladesh, ready to perform analysis on. We have also saved the cleaned dataset to use it in future if we need.

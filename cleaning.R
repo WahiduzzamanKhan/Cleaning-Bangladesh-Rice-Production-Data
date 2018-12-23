@@ -6,24 +6,44 @@ library(readr)
 library(readxl)
 
 # loading and cleaning rice production data
-names <- c("Year", "AreaAus", "AreaAman", "AreaBoro", "ProAus", "ProAman", "ProBoro", "YieldAus", "YieldAman", "YieldBoro")
-RiceProduction <- read_excel("raw data/rice production.xlsx", skip = 2, col_names = names)
-multiplier <- function(table, i, n){
-    table_final <- table
-    for (i in i) {
-        table_final[,i] <- table_final[,i] * n
-    }
-    return(table_final)
-}
-RiceProduction <- multiplier(RiceProduction, c(2,3,4,5,6,7), 1000)
+RiceProduction <- read_excel("raw data/rice production.xlsx", skip = 2, col_names = F)
+colnames(RiceProduction) <- c("Year", "AreaAus", "AreaAman", "AreaBoro", "ProAus", "ProAman", "ProBoro", "YieldAus", "YieldAman", "YieldBoro")
+names <- c("Year", "CultivatedArea", "Production", "Yield", "RiceType")
+order <- c("Year", "RiceType", "CultivatedArea", "Production", "Yield")
+
+Aus <- RiceProduction[,c(1,2,5,8)]
+Aus <- Aus %>% mutate(RiceType = "Aus") 
+colnames(Aus) <- names
+Aus <- Aus %>% select(order)
+
+Aman <- RiceProduction[,c(1,3,6,9)]
+Aman <- Aman %>% mutate(RiceType = "Aman") 
+colnames(Aman) <- names
+Aman <- Aman %>% select(order)
+
+Boro <- RiceProduction[,c(1,4,7,10)]
+Boro <- Boro %>% mutate(RiceType = "Boro") 
+colnames(Boro) <- names
+Boro <- Boro %>% select(order)
+
+RiceProduction <- full_join(Aus, Aman)
+RiceProduction <- full_join(RiceProduction, Boro)
+
+RiceProduction <- RiceProduction %>% 
+    mutate(CultivatedArea = CultivatedArea*1000) %>%
+    mutate(Production = Production*1000)
+
 RiceProduction <- separate(RiceProduction, Year, c("Year"), sep = "-")
 RiceProduction$Year <- as.integer(RiceProduction$Year)
+RiceProduction <- RiceProduction[order(RiceProduction$Year),]
 
 # loading and cleaning rice import and export data
 RiceImEx <- read_csv("raw data/WRS.csv")
-RiceImEx <- spread(RiceImEx[,c(-4,-6)], Variable, Value)
-RiceImEx <- multiplier(RiceImEx, c(4,6), 1000)
-colnames(RiceImEx) <- c("Country", "Year", "ExportQuantity", "ExportValue", "ImportQuantity", "ImportValue")
+RiceImEx <- spread(RiceImEx[,c(-1,-4,-6)], Variable, Value)
+colnames(RiceImEx) <- c("Year", "ExportQuantity", "ExportValue", "ImportQuantity", "ImportValue")
+RiceImEx$ExportValue <- RiceImEx$ExportValue * 1000
+RiceImEx$ImportValue <- RiceImEx$ImportValue * 1000
+RiceImEx <- RiceImEx[order(RiceImEx$Year),]
 
 # loading and cleaning rainfall data
 Rain <- read_csv("raw data/Rain.csv")
@@ -32,13 +52,11 @@ Rain$RainFall <- str_replace_all(Rain$RainFall, "^[*]+$", "0")
 Rain$RainFall <- as.numeric(Rain$RainFall)
 Rain <- Rain[,c(2,5)] %>% group_by(Year) %>% mutate(Rain = sum(RainFall, na.rm = T))
 Rain <- unique(Rain[,c(1,3)])
+Rain <- Rain[order(Rain$Year),]
 
 # combining all the datasets
-RiceData <- tibble(Year = 1948:2018)
-temp <- full_join(RiceData, RiceProduction)
-temp <- full_join(temp, RiceImEx[,-1])
-temp <- full_join(temp, Rain)
-RiceData <- temp
+RiceData <- full_join(RiceProduction, RiceImEx, by = "Year")
+RiceData <- full_join(RiceData, Rain, by = "Year")
 
 # saving cleaned data
-write_csv(RiceData, "cleaned data/cleaned rice data.csv")
+write_csv(RiceData, "cleaned data/CleanedRiceData.csv")
